@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             android:layout_width="match_parent"
+                                             android:background="#ffffff"
+                                             android:layout_height="50dp">
+    <TextView
+            android:id="@+id/tv_item_label"
+            android:textSize="16sp"
+            android:textColor="#1e1e1e"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="#1194f6"
+            android:gravity="center"
+            android:text="11"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"/>
+</android.support.constraint.ConstraintLayout>
