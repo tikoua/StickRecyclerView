@@ -53,24 +53,20 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
         }
         val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
         val firstCompletelyVisiblePosition = layoutManager.findFirstCompletelyVisibleItemPosition()
-        var showFLoat = false
-        if (!adapter.isFloatType(firstCompletelyVisiblePosition)) {
-            var hasLat = false
-            for (i in firstCompletelyVisiblePosition downTo 0) {
-                val lastFloatType = adapter.isFloatType(i)
-                if (lastFloatType) {
-                    hasLat = true
-                    break
-                }
+        val showFLoat: Boolean
+        var hasLat = false
+        for (i in firstCompletelyVisiblePosition - 1 downTo 0) {
+            val lastFloatType = adapter.isFloatType(i)
+            if (lastFloatType) {
+                hasLat = true
+                break
             }
-            showFLoat = hasLat
-        } else {
-            showFLoat = true
         }
+        showFLoat = hasLat
         val parentGroup = parent as ViewGroup
-        val childCount = parentGroup.childCount
+        val parentChildCount = parentGroup.childCount
         var wrap: StickWrapFrameLayout? = null
-        for (i in 0 until childCount) {
+        for (i in 0 until parentChildCount) {
             val childAt = parentGroup.getChildAt(i)
             if (childAt is StickWrapFrameLayout) {
                 wrap = childAt
@@ -81,9 +77,8 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
             val floatView = getLastFloat(adapter, firstVisiblePosition)
             var translateY = 0F
             var firstInScreenFloat: View? = null
-            for (i in 0 until childCount) {
-                val adapterPosition = firstVisiblePosition + i
-                val isFloat = adapter.isFloatType(adapterPosition)
+            for (i in 0 until layoutManager.childCount) {
+                val isFloat = adapter.isFloatType(firstVisiblePosition + i)
                 if (isFloat) {
                     firstInScreenFloat = getChildAt(i)
                     break
@@ -101,7 +96,6 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
                 parentGroup.addView(wrap)
             }
             floatView?.let {
-                floatView.translationY = translateY
                 wrap.removeAllViews()
                 wrap.addView(floatView)
             }
