@@ -51,19 +51,22 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
         if (layoutManager !is LinearLayoutManager || adapter !is StickHelper) {
             return
         }
-        val findFirstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-        val floatView = getLastFloat(adapter, findFirstVisibleItemPosition)
-        var translateY = 0F
-        var firstInScreenFloat: View? = null
-        for (i in 0 until childCount) {
-            val adapterPosition = findFirstVisibleItemPosition + i
-            val isFloat = adapter.isFloatType(adapterPosition)
-            if (isFloat) {
-                firstInScreenFloat = getChildAt(i)
-                break
+        val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+        val firstCompletelyVisiblePosition = layoutManager.findFirstCompletelyVisibleItemPosition()
+        var showFLoat = false
+        if (!adapter.isFloatType(firstCompletelyVisiblePosition)) {
+            var hasLat = false
+            for (i in firstCompletelyVisiblePosition downTo 0) {
+                val lastFloatType = adapter.isFloatType(i)
+                if (lastFloatType) {
+                    hasLat = true
+                    break
+                }
             }
+            showFLoat = hasLat
+        } else {
+            showFLoat = true
         }
-
         val parentGroup = parent as ViewGroup
         val childCount = parentGroup.childCount
         var wrap: StickWrapFrameLayout? = null
@@ -74,36 +77,53 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
                 break
             }
         }
-        if (wrap != null) {
-            wrap.visibility = View.VISIBLE
-        } else {
-            wrap = StickWrapFrameLayout(context)
-            val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-            layoutParams.topMargin = top
-            wrap.layoutParams = layoutParams
-            wrap.y = top.toFloat()
-            parentGroup.addView(wrap)
-        }
-        floatView?.let {
-            floatView.translationY = translateY
-            wrap.removeAllViews()
-            wrap.addView(floatView)
-        }
-        if (firstInScreenFloat == null) {
-            translateY = 0F
-        } else {
-            floatView?.let {
-                val top = firstInScreenFloat.top
-                val widthSpec = View.MeasureSpec.makeMeasureSpec(((1 shl 30) - 1), MeasureSpec.AT_MOST)
-                val heightSpec = View.MeasureSpec.makeMeasureSpec(((1 shl 30) - 1), MeasureSpec.AT_MOST)
-                wrap.measure(widthSpec, heightSpec)
-                val floatViewHeight = wrap.measuredHeight
-                if (top in 1..(floatViewHeight - 1)) {
-                    translateY = (top - floatViewHeight).toFloat()
+        if (showFLoat) {
+            val floatView = getLastFloat(adapter, firstVisiblePosition)
+            var translateY = 0F
+            var firstInScreenFloat: View? = null
+            for (i in 0 until childCount) {
+                val adapterPosition = firstVisiblePosition + i
+                val isFloat = adapter.isFloatType(adapterPosition)
+                if (isFloat) {
+                    firstInScreenFloat = getChildAt(i)
+                    break
                 }
             }
+
+            if (wrap != null) {
+                wrap.visibility = View.VISIBLE
+            } else {
+                wrap = StickWrapFrameLayout(context)
+                val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                layoutParams.topMargin = top
+                wrap.layoutParams = layoutParams
+                wrap.y = top.toFloat()
+                parentGroup.addView(wrap)
+            }
+            floatView?.let {
+                floatView.translationY = translateY
+                wrap.removeAllViews()
+                wrap.addView(floatView)
+            }
+            if (firstInScreenFloat == null) {
+                translateY = 0F
+            } else {
+                floatView?.let {
+                    val top = firstInScreenFloat.top
+                    val widthSpec = View.MeasureSpec.makeMeasureSpec(((1 shl 30) - 1), MeasureSpec.AT_MOST)
+                    val heightSpec = View.MeasureSpec.makeMeasureSpec(((1 shl 30) - 1), MeasureSpec.AT_MOST)
+                    wrap.measure(widthSpec, heightSpec)
+                    val floatViewHeight = wrap.measuredHeight
+                    if (top in 1..(floatViewHeight - 1)) {
+                        translateY = (top - floatViewHeight).toFloat()
+                    }
+                }
+            }
+            floatView?.translationY = translateY
+        } else {
+            wrap?.visibility = View.GONE
         }
-        floatView?.translationY = translateY
+
     }
 
     /**
