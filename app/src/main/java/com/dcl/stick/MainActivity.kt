@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.dcl.example.R
 import com.dcl.stickrecyclerview.StickHelper
-import com.dcl.stickrecyclerview.logi
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_label.*
@@ -35,7 +34,6 @@ class MainActivity : AppCompatActivity() {
                 data.add("${i}${j}")
             }
         }
-        logi("  " + data.toString())
     }
 
     private fun bindData(data: MutableList<String>) {
@@ -51,8 +49,8 @@ class SelfAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), StickHelper
 
     private var data: List<String>? = null
     private val labels by lazy { mutableMapOf<Int, String>() }
-    private val Type_Label = 1
-    private val Type_Item = 2
+    private val Type_Label = 1          //需要吸顶的类型
+    private val Type_Item = 2           //其他类型
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             Type_Label -> SelfLabelHolder(
@@ -91,10 +89,16 @@ class SelfAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), StickHelper
         }
     }
 
+    /**
+     * 需要额外实现的两个方法之一
+     */
     override fun isFloatType(position: Int): Boolean {
         return getItemViewType(position) == Type_Label
     }
 
+    /**
+     * 需要额外实现的两个方法之二
+     */
     override fun isFloatMembers(position: Int): Boolean {
         return getItemViewType(position) == Type_Item
     }
@@ -115,7 +119,6 @@ class SelfAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), StickHelper
                 }
             }
         }
-        logi(labels.toString())
     }
 }
 
