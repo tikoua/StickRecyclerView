@@ -11,7 +11,7 @@ allprojects {
 	}
 
 dependencies {
-    implementation 'com.github.daichanglin:StickRecyclerView:1.1'
+    implementation 'com.github.daichanglin:StickRecyclerView:1.12'
 }
 ```
 #How do I use StickRecyclerView?
