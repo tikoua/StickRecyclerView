@@ -12,7 +12,8 @@ import android.widget.FrameLayout
 /**
  * Created by dcl@yuni on 2019/4/8.
  */
-class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) : RecyclerView(context, attrs, defStyle) {
+class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
+    RecyclerView(context, attrs, defStyle) {
     private var stick: Boolean
 
     constructor(context: Context) : this(context, null)
@@ -51,31 +52,17 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
             return
         }
         val findFirstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-        val findFirstCompletelyVisibleItemPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
-        var floatView: View? = null
-        var nowShow = false
+        val floatView = getLastFloat(adapter, findFirstVisibleItemPosition)
         var translateY = 0F
-
-        if (adapter.isFloatType(findFirstCompletelyVisibleItemPosition) && adapter.isFloatMembers(findFirstVisibleItemPosition)) {
-            nowShow = true
-            floatView = getLastFloat(adapter, findFirstVisibleItemPosition)
-            val memberCount = findFirstCompletelyVisibleItemPosition - findFirstVisibleItemPosition
-            val nextfloat = getChildAt(memberCount)
-            val nextFloatTop = nextfloat.top
-            val nextFloatHeight = nextfloat.height
-            if (nextFloatTop <= nextFloatHeight) {
-                translateY = nextFloatTop - nextFloatHeight + 0.0F
-            } else {
-                translateY = 0.0F
+        var firstInScreenFloat: View? = null
+        for (i in 0 until childCount) {
+            val adapterPosition = findFirstVisibleItemPosition + i
+            val isFloat = adapter.isFloatType(adapterPosition)
+            if (isFloat) {
+                firstInScreenFloat = getChildAt(i)
+                break
             }
-        } else if (adapter.isFloatMembers(findFirstCompletelyVisibleItemPosition) || adapter.isFloatMembers(findFirstVisibleItemPosition)) {
-            nowShow = true
-            translateY = 0.0F
-            floatView = getLastFloat(adapter, findFirstVisibleItemPosition)
-        } else {
-            nowShow = false
         }
-
 
         val parentGroup = parent as ViewGroup
         val childCount = parentGroup.childCount
@@ -87,30 +74,36 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
                 break
             }
         }
-
-        if (nowShow) {
-            if (wrap != null) {
-                wrap.visibility = View.VISIBLE
-            } else {
-                wrap = StickWrapFrameLayout(context)
-                val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-                layoutParams.topMargin = top
-                wrap.layoutParams = layoutParams
-                wrap.y = top.toFloat()
-                parentGroup.addView(wrap)
-            }
-            floatView?.let {
-                floatView.translationY = translateY
-                wrap.removeAllViews()
-                wrap.addView(floatView)
-            }
-
+        if (wrap != null) {
+            wrap.visibility = View.VISIBLE
         } else {
-            if (wrap != null) {
-                wrap.removeAllViews()
-                wrap.visibility = View.GONE
+            wrap = StickWrapFrameLayout(context)
+            val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            layoutParams.topMargin = top
+            wrap.layoutParams = layoutParams
+            wrap.y = top.toFloat()
+            parentGroup.addView(wrap)
+        }
+        floatView?.let {
+            floatView.translationY = translateY
+            wrap.removeAllViews()
+            wrap.addView(floatView)
+        }
+        if (firstInScreenFloat == null) {
+            translateY = 0F
+        } else {
+            floatView?.let {
+                val top = firstInScreenFloat.top
+                val widthSpec = View.MeasureSpec.makeMeasureSpec(((1 shl 30) - 1), MeasureSpec.AT_MOST)
+                val heightSpec = View.MeasureSpec.makeMeasureSpec(((1 shl 30) - 1), MeasureSpec.AT_MOST)
+                wrap.measure(widthSpec, heightSpec)
+                val floatViewHeight = wrap.measuredHeight
+                if (top in 1..(floatViewHeight - 1)) {
+                    translateY = (top - floatViewHeight).toFloat()
+                }
             }
         }
+        floatView?.translationY = translateY
     }
 
     /**
@@ -130,7 +123,9 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
 
 }
 
-class StickWrapFrameLayout(context: Context, attrs: AttributeSet?, defStyle: Int) : FrameLayout(context, attrs, defStyle) {
+
+class StickWrapFrameLayout(context: Context, attrs: AttributeSet?, defStyle: Int) :
+    FrameLayout(context, attrs, defStyle) {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 }
