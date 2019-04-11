@@ -19,6 +19,10 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
+    companion object {
+        const val WrapTag = "com.dcl.stickrecyclerview.stickrecyclerview.wraptag"
+    }
+
     init {
         val array = context.obtainStyledAttributes(attrs, R.styleable.StickRecyclerView)
         stick = array.getBoolean(R.styleable.StickRecyclerView_stick, true)
@@ -65,11 +69,11 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
         showFLoat = hasLat
         val parentGroup = parent as ViewGroup
         val parentChildCount = parentGroup.childCount
-        var wrap: StickWrapFrameLayout? = null
+        var wrap: FrameLayout? = null
         for (i in 0 until parentChildCount) {
             val childAt = parentGroup.getChildAt(i)
-            if (childAt is StickWrapFrameLayout) {
-                wrap = childAt
+            if (childAt.tag == WrapTag) {
+                wrap = childAt as FrameLayout
                 break
             }
         }
@@ -88,7 +92,8 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
             if (wrap != null) {
                 wrap.visibility = View.VISIBLE
             } else {
-                wrap = StickWrapFrameLayout(context)
+                wrap = FrameLayout(context)
+                wrap.tag = WrapTag
                 val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
                 layoutParams.topMargin = top
                 wrap.layoutParams = layoutParams
@@ -137,9 +142,3 @@ class StickRecyclerView(context: Context, attrs: AttributeSet?, defStyle: Int) :
 
 }
 
-
-class StickWrapFrameLayout(context: Context, attrs: AttributeSet?, defStyle: Int) :
-    FrameLayout(context, attrs, defStyle) {
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-}

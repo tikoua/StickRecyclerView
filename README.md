@@ -1,6 +1,9 @@
 # StickRecyclerView
 实现吸顶效果的RecyclerView。
-
+#注意
+- 当item的高度大于或等于屏幕的一半时，会出现bug。
+- 当item的高度大于或等于屏幕的一半时，会出现bug。
+所以如果有以上情况的不建议使用
 #Use Gradle
 ```
 allprojects {
@@ -78,8 +81,10 @@ class SelfAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), StickHelper
 2. adapter实现StickHelper接口。
 ##提醒：
 - layoutManager暂时只支持竖向的LinearLayoutManager（包括GridLayoutManager）
+- 由于依赖于Recyclerview的addOnScrollListener中的onScrolled方法的回调，所以当Recyclerview被其他如上拉加载更多(如SwipeToLoadLayout)等控件包裹时，会出现无法吸顶的现象。
 - StickRecyclerView的父布局不要使用LinearLayout(因为吸顶的item时间上是被添加到了父布局，如果使用LinearLayout就没了吸顶效果。推荐使用Framlayout、ConstraintLayout、RelativeLayout等作为StickRecyclerView的父布局)
 - StickRecyclerView设置stick可通过xml属性或者java代码设置，默认为true，表示启用吸顶。
+- 当item的高度大于或等于屏幕的一半时，会出现bug。
 ##相较于其他方式实现吸顶的优缺点
 ###优点
 - 支持复杂的吸顶view,不仅限于简单的text和drawable内容。
@@ -87,6 +92,8 @@ class SelfAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), StickHelper
 - 使用较为简便。在写好通用的逻辑后，只需要2步，替换RecyclerView、实现StickHelper接口（接口中只有两个方法）。
 ###缺点
 - ~~由于代码缺陷，只支持吸顶view的高度大于普通item的高度的情况（囧：下个版本会修复）。~~
+- 当item的高度大于或等于屏幕的一半时，会出现bug。
 - 使用继承实现，如果项目中的RecyclerView已经继承了其他的父类，则无法使用。
+- 由于依赖于Recyclerview的addOnScrollListener中的onScrolled方法的回调，所以当Recyclerview被其他如下拉刷新等控件包裹时，会出现无法吸顶的现象。
 - 滑动时吸顶view位置的变化通过addOnScrollListener中的onScrolled方法实现，如果Recyclerview的滚动的方式不触发onScrolled的话，则不会更新吸顶的view的位置和内容，当然一般情况下都是。
 - 如果初始化Recyclerview的同时，调用了scrollToPosition（）方法，有概率会出现吸顶的view的顶部没有与Recyclerview的顶部对齐的问题（只有当Recyclerview的顶部不再其父布局的顶部时可能会出现，原因在于设置吸顶view的top时是根据Recyclerview的top来设置的，而过早的调用scrollToPosition会导致Recyclerview获取到的top错误）
