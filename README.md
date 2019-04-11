@@ -1,5 +1,9 @@
 # StickRecyclerView
 实现吸顶效果的RecyclerView。
+![效果1](https://upload-images.jianshu.io/upload_images/3882680-0c4b7f92d6994a64.gif?imageMogr2/auto-orient/strip)
+)
+![效果2](https://upload-images.jianshu.io/upload_images/3882680-8c0d3baf6ca60276.gif?imageMogr2/auto-orient/strip)
+)
 #注意
 - 当item的高度大于或等于屏幕的一半时，会出现bug。
 所以如果有以上情况的不建议使用
